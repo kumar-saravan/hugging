@@ -23,6 +23,7 @@ import { useEditor } from "@/hooks/useEditor";
 import { AskAI } from "@/components/editor/ask-ai";
 import { Project } from "@/types";
 import { isTheSameHtml } from "@/lib/compare-html-diff";
+import { LeftPanel } from "./left-panel";
 
 export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [credits, setCredits] = useState<number>(0);
@@ -218,6 +219,7 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
         availCredits={credits}
       />
       <main className="bg-neutral-950 flex-1 max-lg:flex-col flex w-full max-lg:h-[calc(100%-82px)] relative">
+        <LeftPanel history={htmlHistory} setHtml={setHtml} />
         {currentTab === "chat" && (
           <>
             <div
@@ -361,8 +363,6 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
             );
           }
         }}
-        htmlHistory={htmlHistory}
-        setHtml={setHtml}
         iframeRef={iframeRef}
         device={device}
         setDevice={setDevice}
