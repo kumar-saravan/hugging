@@ -27,7 +27,8 @@ import { isTheSameHtml } from "@/lib/compare-html-diff";
 import { History } from "@/components/editor/history";
 import { api } from "@/lib/api";
 
-export const AppEditor = ({ project }: { project?: Project | null }) => {
+export const AppEditor = ({ project: initialProject }: { project?: Project | null }) => {
+  const [project, setProject] = useState(initialProject);
   const [credits, setCredits] = useState<number>(0);
   const [htmlStorage, , removeHtmlStorage] = useLocalStorage("html_content");
   const [, copyToClipboard] = useCopyToClipboard();
@@ -61,6 +62,29 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
     null
   );
 
+  const createNewProject = async () => {
+    try {
+      const res = await api.post("/me/projects/new");
+      if (res.data.ok) {
+        setProject(res.data.project);
+        router.replace(`/projects/${res.data.project.space_id}`);
+        toast.success("New project created!");
+      } else {
+        toast.error("Error creating new project.");
+        console.error(res.data.error);
+      }
+    } catch (error) {
+      toast.error("Error creating new project.");
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!project) {
+      createNewProject();
+    }
+  }, [project]);
+
   const saveProject = async (newHtml: string) => {
     if (!project) return;
     try {
@@ -77,12 +101,12 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
 
   useDebounce(
     () => {
-      if (!isTheSameHtml(html)) {
+      if (project && !isTheSameHtml(html)) {
         saveProject(html);
       }
     },
     2000,
-    [html]
+    [html, project]
   );
 
   /**
