@@ -1,0 +1,36 @@
+.swal2-popup-custom {
+    background-color: #111514 !important;
+    color: #FFFFFF !important;
+}
+
+.swal2-confirm-custom {
+    background-color: #7DDD7D !important;
+    color: #000 !important;
+    border: none !important;
+    width: 120px !important;
+    height: 40px;
+    font-weight: 600;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 9px !important;
+}
+
+/* Cancel button */
+.swal2-cancel-custom {
+    background-color: transparent !important;
+    color: #7DDD7D !important;
+    border: 1px solid #7DDD7D !important;
+    width: 120px !important;
+    height: 40px;
+    font-weight: 600;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    border-radius: 9px !important;
+}
+
+
+.swal2-popup {
+    border-radius: 10px !important;
+}

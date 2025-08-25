@@ -1,0 +1,298 @@
+:root {
+  /* --c1:#3b8346;  */
+  --c1: #95d689;
+}
+.c1 {
+  color: var(--c1) !important;
+}
+.w {
+  color: #ffffff !important;
+}
+.w2 {
+  color: #a0a0a0;
+}
+.hero {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("./images/log-back.jpg");
+  background-position: center;
+  background-size: cover;
+  position: relative;
+}
+.hero-txt {
+  font-size: 55px;
+}
+
+/* top logo and icon section */
+.top-nv {
+  position: absolute;
+  top: 0%;
+}
+.logo {
+  width: 140px;
+}
+.nv-icon-soc {
+  width: 18px;
+  /* height: unset; */
+  object-fit: contain;
+}
+.p {
+  font-size: 18px;
+}
+
+/* ==== mobile === */
+@media screen and (max-width: 620px) {
+  .logo {
+    width: 30%;
+  }
+}
+.form-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.356) 0%,
+    rgba(55, 55, 55, 0.397) 100%
+  );
+  border: 1px solid #5353537e;
+  border-radius: 9px;
+}
+.jesica-img img {
+  height: 140px;
+  width: 140px;
+  border-radius: 50%;
+}
+.jesica-img-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.jesica-text h1 {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 28px;
+}
+.jesica-text p {
+  color: #e9e9e9;
+  font-size: 15px;
+}
+.form-p {
+  color: #e9e9e9;
+  font-size: 13px;
+}
+.form-h6 {
+  color: #e9e9e9;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  color: #d1d5db; /* text-gray-300 */
+}
+
+.input-group-1 {
+  position: relative;
+  display: block;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+/* ICON: left chunk */
+.input-icon {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: #9ca3af;
+  background: #111514;
+
+  /* one continuous border with input */
+  border: 1.5px solid #3a3f3e;
+  border-right: 0; /* seam with input */
+  border-radius: 9px 0 0 9px; /* left corners only */
+
+  transition: border-color 0.18s ease, color 0.18s ease, filter 0.18s ease;
+}
+
+.input-icon svg,
+.toggle-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* INPUT: right chunk */
+.input-field {
+  width: 100%;
+  height: 44px;
+  box-sizing: border-box;
+  padding: 0 44px 0 48px; /* room for icon */
+  background: #111514;
+  color: #fff;
+  outline: none;
+  border: 1.5px solid #3a3f3e;
+  border-left: 0; /* seam with icon */
+  border-radius: 0 9px 9px 0; /* right corners only */
+  transition: border-color 0.18s ease;
+}
+
+.input-field:-webkit-autofill,
+.input-field:-webkit-autofill:hover,
+.input-field:-webkit-autofill:focus,
+.input-field:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #111514 inset !important; /* Dark background */
+  -webkit-text-fill-color: #ffffff !important; /* White text */
+  border: 1.5px solid #3a3f3e !important; /* Default gray border */
+  border-left: 0 !important;
+  border-radius: 0 9px 9px 0 !important;
+  caret-color: #ffffff;
+}
+
+/* Make it green only when focused */
+.input-field:-webkit-autofill:focus {
+  border-color: #2be47f !important;
+}
+
+/* Optional: match icon styling for autofill focus */
+.input-field:-webkit-autofill:focus ~ .input-icon {
+  border-color: #2be47f !important;
+  color: #2be47f !important;
+}
+
+
+.toggle-button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: 0px;
+  background: transparent;
+  color: #9ca3af;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2; /* ensures it's above the input */
+}
+/* Focus: change border color on BOTH */
+.input-group-1:focus-within .input-field,
+.input-group-1:focus-within .input-icon {
+  border-color: #2be47f !important;
+}
+
+/* Optional unified glow around the whole control */
+.input-group-1:focus-within .input-field {
+}
+.input-group-1:focus-within .input-icon {
+  color: #2be47f;
+}
+/* Hover – optional */
+.toggle-button:hover {
+  color: #cbd5e1;
+}
+
+.login-sim {
+  background: linear-gradient(90deg, #7ddd7d 0%, #54c754 99.99%);
+  color: #000000;
+  font-size: 15px;
+  border-radius: 9px;
+  width: 100%;
+  height: 44px;
+  border: 0px;
+}
+.simbli-line {
+  width: 100%;
+  height: 1px;
+  background-color: #ffffff;
+}
+.google-login {
+  width: 20px;
+  height: 20px;
+}
+.microsoft-btn {
+  width: 100%;
+  height: 38px;
+  border-radius: 9px;
+  border: 0px;
+  border: 1px solid #262626;
+  color: #ffff;
+  font-size: 15px;
+  background: #0f0f0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-group:not(.has-validation) > .dropdown-toggle:nth-last-child(n + 3),
+.input-group:not(.has-validation)
+  > .form-floating:not(:last-child)
+  > .form-control,
+.input-group:not(.has-validation)
+  > .form-floating:not(:last-child)
+  > .form-select,
+.input-group:not(.has-validation)
+  > :not(:last-child):not(.dropdown-toggle):not(.dropdown-menu):not(
+    .form-floating
+  ) {
+  border-top-right-radius: 9px !important;
+  border-bottom-right-radius: 9px !important;
+}
+
+@media (min-width: 381px) and (max-width: 600px) {
+  .jesica-img img {
+    height: 90px;
+    width: 90px;
+  }
+  .jesica-text h1 {
+    font-size: 22px;
+  }
+  .form-h6 {
+    font-size: 24px;
+  }
+  .form-overlay-login {
+    text-align: center;
+  }
+}
+@media (max-width: 380px) {
+  .jesica-img img {
+    height: 80px;
+    width: 80px;
+  }
+  .jesica-text h1 {
+    font-size: 19px;
+  }
+  .form-h6 {
+    font-size: 22px;
+  }
+  .login-sim {
+    height: 34px;
+  }
+  .jesica-img-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .form-overlay-login {
+    text-align: center;
+  }
+}
+.nsm7Bb-HzV7m-LgbsSe {
+     width: 100%;
+  height: 38px;
+  border-radius: 9px !important;
+  border: 0px;
+  border: 1px solid #262626 !important;
+  color: #ffff !important;
+  font-size: 15px ;
+  background: #0f0f0f !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
