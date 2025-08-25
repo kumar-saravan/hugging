@@ -23,6 +23,7 @@ import { useEditor } from "@/hooks/useEditor";
 import { AskAI } from "@/components/editor/ask-ai";
 import { Project } from "@/types";
 import { isTheSameHtml } from "@/lib/compare-html-diff";
+import { History } from "@/components/editor/history";
 
 export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [credits, setCredits] = useState<number>(0);
@@ -45,6 +46,9 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const monacoRef = useRef<any>(null);
 
+  const [rightPanelTab, setRightPanelTab] = useState<"code" | "preview">(
+    "code"
+  );
   const [currentTab, setCurrentTab] = useState("chat");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [isResizing, setIsResizing] = useState(false);
@@ -156,7 +160,7 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
   });
 
   useUpdateEffect(() => {
-    if (currentTab === "chat") {
+    if (rightPanelTab === "code") {
       // Reset editor width when switching to reasoning tab
       resetLayout();
       // re-add the event listener for resizing
@@ -169,7 +173,7 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
         preview.current.style.width = "100%";
       }
     }
-  }, [currentTab]);
+  }, [rightPanelTab]);
 
   const handleEditorValidation = (markers: editor.IMarker[]) => {
     console.log("Editor validation markers:", markers);
@@ -212,14 +216,23 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
   return (
     <section className="h-[100dvh] bg-neutral-950 flex flex-col">
       <Header
-        tab={currentTab}
-        onNewTab={setCurrentTab}
+        tab={rightPanelTab}
+        onNewTab={(tab) => setRightPanelTab(tab as "code" | "preview")}
         html={html}
         availCredits={credits}
       />
-      <main className="bg-neutral-950 flex-1 max-lg:flex-col flex w-full max-lg:h-[calc(100%-82px)] relative">
-        {currentTab === "chat" && (
-          <>
+      <main className="bg-neutral-950 flex-1 flex w-full max-lg:h-[calc(100%-82px)] relative">
+        <div className="w-1/4 bg-neutral-900 p-4 overflow-y-auto">
+          <History
+            history={htmlHistory}
+            setHtml={(newHtml) => {
+              setHtml(newHtml);
+              setRightPanelTab("preview");
+            }}
+          />
+        </div>
+        <div className="flex-1 flex max-lg:flex-col">
+          {rightPanelTab === "code" ? (
             <div
               ref={editor}
               className="bg-neutral-900 relative flex-1 overflow-hidden h-full flex flex-col gap-2 pb-3"
@@ -261,89 +274,89 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
                 }}
                 onValidate={handleEditorValidation}
               />
-              <AskAI
-                html={html}
-                setHtml={(newHtml: string) => {
-                  setHtml(newHtml);
-                }}
-                htmlHistory={htmlHistory}
-                onSuccess={(
-                  finalHtml: string,
-                  p: string,
-                  updatedLines?: number[][]
-                ) => {
-                  const currentHistory = [...htmlHistory];
-                  currentHistory.unshift({
-                    html: finalHtml,
-                    createdAt: new Date(),
-                    prompt: p,
-                  });
-                  setHtmlHistory(currentHistory);
-                  setSelectedElement(null);
-                  // if xs or sm
-                  if (window.innerWidth <= 1024) {
-                    setCurrentTab("preview");
-                  }
-                  if (updatedLines && updatedLines?.length > 0) {
-                    const decorations = updatedLines.map((line) => ({
-                      range: new monacoRef.current.Range(
-                        line[0],
-                        1,
-                        line[1],
-                        1
-                      ),
-                      options: {
-                        inlineClassName: "matched-line",
-                      },
-                    }));
-                    setTimeout(() => {
-                      editorRef?.current
-                        ?.getModel()
-                        ?.deltaDecorations([], decorations);
-
-                      editorRef.current?.revealLine(updatedLines[0][0]);
-                    }, 100);
-                  }
-                }}
-                isAiWorking={isAiWorking}
-                setisAiWorking={setIsAiWorking}
-                onNewPrompt={(prompt: string) => {
-                  setPrompts((prev) => [...prev, prompt]);
-                }}
-                onScrollToBottom={() => {
-                  editorRef.current?.revealLine(
-                    editorRef.current?.getModel()?.getLineCount() ?? 0
-                  );
-                }}
-                isEditableModeEnabled={isEditableModeEnabled}
-                setIsEditableModeEnabled={setIsEditableModeEnabled}
-                selectedElement={selectedElement}
-                setSelectedElement={setSelectedElement}
-                availCredits={credits}
-                getCredits={getCredits}
-              />
             </div>
-            <div
-              ref={resizer}
-              className="bg-neutral-800 hover:bg-sky-500 active:bg-sky-500 w-1.5 cursor-col-resize h-full max-lg:hidden"
+          ) : (
+            <Preview
+              html={html}
+              isResizing={isResizing}
+              isAiWorking={isAiWorking}
+              ref={preview}
+              device={device}
+              currentTab={currentTab}
+              isEditableModeEnabled={isEditableModeEnabled}
+              iframeRef={iframeRef}
+              onClickElement={(element) => {
+                setIsEditableModeEnabled(false);
+                setSelectedElement(element);
+                setRightPanelTab("code");
+              }}
             />
-          </>
-        )}
-        <Preview
-          html={html}
-          isResizing={isResizing}
-          isAiWorking={isAiWorking}
-          ref={preview}
-          device={device}
-          currentTab={currentTab}
-          isEditableModeEnabled={isEditableModeEnabled}
-          iframeRef={iframeRef}
-          onClickElement={(element) => {
-            setIsEditableModeEnabled(false);
-            setSelectedElement(element);
-            setCurrentTab("chat");
-          }}
-        />
+          )}
+          <div
+            ref={resizer}
+            className="bg-neutral-800 hover:bg-sky-500 active:bg-sky-500 w-1.5 cursor-col-resize h-full max-lg:hidden"
+          />
+        </div>
+        <div className="w-1/4 bg-neutral-900 p-4 flex flex-col">
+          <AskAI
+            html={html}
+            setHtml={(newHtml: string) => {
+              setHtml(newHtml);
+            }}
+            htmlHistory={htmlHistory}
+            onSuccess={(
+              finalHtml: string,
+              p: string,
+              updatedLines?: number[][]
+            ) => {
+              const currentHistory = [...htmlHistory];
+              currentHistory.unshift({
+                html: finalHtml,
+                createdAt: new Date(),
+                prompt: p,
+              });
+              setHtmlHistory(currentHistory);
+              setSelectedElement(null);
+              // if xs or sm
+              if (window.innerWidth <= 1024) {
+                setRightPanelTab("preview");
+              } else {
+                setRightPanelTab("preview");
+              }
+              if (updatedLines && updatedLines?.length > 0) {
+                const decorations = updatedLines.map((line) => ({
+                  range: new monacoRef.current.Range(line[0], 1, line[1], 1),
+                  options: {
+                    inlineClassName: "matched-line",
+                  },
+                }));
+                setTimeout(() => {
+                  editorRef?.current
+                    ?.getModel()
+                    ?.deltaDecorations([], decorations);
+
+                  editorRef.current?.revealLine(updatedLines[0][0]);
+                }, 100);
+              }
+            }}
+            isAiWorking={isAiWorking}
+            setisAiWorking={setIsAiWorking}
+            onNewPrompt={(prompt: string) => {
+              setPrompts((prev) => [...prev, prompt]);
+            }}
+            onScrollToBottom={() => {
+              editorRef.current?.revealLine(
+                editorRef.current?.getModel()?.getLineCount() ?? 0
+              );
+            }}
+            isEditableModeEnabled={isEditableModeEnabled}
+            setIsEditableModeEnabled={setIsEditableModeEnabled}
+            selectedElement={selectedElement}
+            setSelectedElement={setSelectedElement}
+            availCredits={credits}
+            getCredits={getCredits}
+          />
+        </div>
       </main>
       <Footer
         onReset={() => {
