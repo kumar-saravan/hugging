@@ -35,6 +35,7 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
   const [htmlStorage, setHtmlStorage, removeHtmlStorage] =
     useLocalStorage("html_content");
   const [, copyToClipboard] = useCopyToClipboard();
+  const [isMounted, setIsMounted] = useState(false);
   const { html, setHtml, htmlHistory, setHtmlHistory, prompts, setPrompts } =
     useEditor(
       project?.html ?? (htmlStorage as string) ?? defaultHTML,
@@ -65,6 +66,10 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
     null
   );
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const createNewProject = async () => {
     try {
       const res = await api.post("/me/projects/new");
@@ -83,10 +88,10 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
   };
 
   useEffect(() => {
-    if (!project && user) {
+    if (isMounted && !project && user) {
       createNewProject();
     }
-  }, [project, user]);
+  }, [project, user, isMounted]);
 
   const saveProject = async (newHtml: string) => {
     if (!project) {
@@ -107,12 +112,12 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
 
   useDebounce(
     () => {
-      if (!isTheSameHtml(html)) {
+      if (isMounted && !isTheSameHtml(html)) {
         saveProject(html);
       }
     },
     2000,
-    [html, project]
+    [html, project, isMounted]
   );
 
   /**
@@ -269,6 +274,10 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
   useEffect(() => {
     getCredits();
   }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <section className="h-[100dvh] bg-neutral-950 flex flex-col">
