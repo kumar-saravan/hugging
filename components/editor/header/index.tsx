@@ -7,7 +7,6 @@ import Image from "next/image";
 import Logout from "../../logout/logout";
 import "@assets/own.css";
 import fire from "@assets/images/fire.png";
-import { DeployButton } from "../deploy-button";
 
 const TABS = [
   {
@@ -26,13 +25,11 @@ export function Header({
   tab,
   onNewTab,
   html,
-  prompts,
   availCredits,
 }: {
   tab: string;
   onNewTab: (tab: string) => void;
   html: string;
-  prompts: string[];
   availCredits: number;
 }) {
   const handleDownload = async () => {
@@ -229,7 +226,6 @@ export function Header({
           <Image src={fire} alt="fire" className="w-5 h-5" />
           <span className="text-base font-semibold">{availCredits}</span>
         </div>
-        <DeployButton html={html} prompts={prompts} />
         <Button
           variant="outline"
           size="sm"

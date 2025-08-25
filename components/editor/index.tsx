@@ -6,6 +6,7 @@ import Editor from "@monaco-editor/react";
 import { CopyIcon } from "lucide-react";
 import {
   useCopyToClipboard,
+  useDebounce,
   useEvent,
   useLocalStorage,
   useMount,
@@ -24,6 +25,7 @@ import { AskAI } from "@/components/editor/ask-ai";
 import { Project } from "@/types";
 import { isTheSameHtml } from "@/lib/compare-html-diff";
 import { History } from "@/components/editor/history";
+import { api } from "@/lib/api";
 
 export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [credits, setCredits] = useState<number>(0);
@@ -57,6 +59,30 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [isEditableModeEnabled, setIsEditableModeEnabled] = useState(false);
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
     null
+  );
+
+  const saveProject = async (newHtml: string) => {
+    if (!project) return;
+    try {
+      await api.put(`/me/projects/${project.space_id}/save`, {
+        html: newHtml,
+        history: htmlHistory,
+      });
+      toast.success("Project saved!");
+    } catch (error) {
+      toast.error("Error saving project.");
+      console.error(error);
+    }
+  };
+
+  useDebounce(
+    () => {
+      if (!isTheSameHtml(html)) {
+        saveProject(html);
+      }
+    },
+    2000,
+    [html]
   );
 
   /**
@@ -220,7 +246,6 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
         tab={rightPanelTab}
         onNewTab={(tab) => setRightPanelTab(tab as "code" | "preview")}
         html={html}
-        prompts={prompts}
         availCredits={credits}
       />
       <main className="bg-neutral-950 flex-1 flex w-full max-lg:h-[calc(100%-82px)] relative">
