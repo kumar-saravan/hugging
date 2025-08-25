@@ -18,6 +18,7 @@ export interface Project {
   title: string;
   html: string;
   prompts: string[];
+  history: HtmlHistory[];
   user_id: string;
   space_id: string;
   _id?: string;

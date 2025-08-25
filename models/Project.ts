@@ -13,6 +13,19 @@ const ProjectSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  history: {
+    type: [
+      {
+        html: String,
+        prompt: String,
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    default: [],
+  },
   _createdAt: {
     type: Date,
     default: Date.now,

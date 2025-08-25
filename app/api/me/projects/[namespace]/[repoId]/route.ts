@@ -147,6 +147,12 @@ export async function PUT(
     commitTitle: `${prompts[prompts.length - 1]} - Follow Up Deployment`,
   });
 
+  const newHistoryItem = {
+    html,
+    prompt: prompts[prompts.length - 1],
+    createdAt: new Date(),
+  };
+
   await Project.updateOne(
     { user_id: user.id, space_id: `${namespace}/${repoId}` },
     {
@@ -155,6 +161,9 @@ export async function PUT(
           ...(project && "prompts" in project ? project.prompts : []),
           ...prompts,
         ],
+      },
+      $push: {
+        history: newHistoryItem,
       },
     }
   );

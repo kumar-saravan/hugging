@@ -114,6 +114,13 @@ Check out the configuration reference at https://huggingface.co/docs/hub/spaces-
       user_id: user.id,
       space_id: path,
       prompts,
+      history: [
+        {
+          html,
+          prompt: prompts[prompts.length - 1],
+          createdAt: new Date(),
+        },
+      ],
     });
     return NextResponse.json({ project, path, ok: true }, { status: 201 });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

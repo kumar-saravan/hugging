@@ -29,7 +29,8 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [htmlStorage, , removeHtmlStorage] = useLocalStorage("html_content");
   const [, copyToClipboard] = useCopyToClipboard();
   const { html, setHtml, htmlHistory, setHtmlHistory, setPrompts } = useEditor(
-    project?.html ?? (htmlStorage as string) ?? defaultHTML
+    project?.html ?? (htmlStorage as string) ?? defaultHTML,
+    project?.history
   );
   // get query params from URL
   const searchParams = useSearchParams();
