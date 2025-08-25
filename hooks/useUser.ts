@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCookie } from "react-use";
+import { useCookie, useLocalStorage } from "react-use";
 import { useRouter } from "next/navigation";
 
 import { User } from "@/types";
@@ -18,6 +18,8 @@ export const useUser = (initialData?: {
   const router = useRouter();
   const [, setCookie, removeCookie] = useCookie(cookie_name);
   const [currentRoute, setCurrentRoute] = useCookie("deepsite-currentRoute");
+  const [htmlStorage, setHtmlStorage, removeHtmlStorage] =
+    useLocalStorage("html_content");
 
   const { data: { user, errCode } = { user: null, errCode: null }, isLoading } =
     useQuery({
@@ -69,7 +71,35 @@ export const useUser = (initialData?: {
             user: res.data.user,
             errCode: null,
           });
-          if (currentRoute) {
+
+          if (htmlStorage) {
+            toast.info("You have an unsaved project.", {
+              action: {
+                label: "Save it",
+                onClick: async () => {
+                  try {
+                    const newProjectRes = await api.post(
+                      "/me/projects/from-localstorage",
+                      {
+                        html: htmlStorage,
+                      }
+                    );
+                    if (newProjectRes.data.ok) {
+                      removeHtmlStorage();
+                      router.push(
+                        `/projects/${newProjectRes.data.project.space_id}`
+                      );
+                      toast.success("Project saved successfully!");
+                    } else {
+                      toast.error("Error saving project.");
+                    }
+                  } catch (error) {
+                    toast.error("Error saving project.");
+                  }
+                },
+              },
+            });
+          } else if (currentRoute) {
             router.push(currentRoute);
             setCurrentRoute("");
           } else {

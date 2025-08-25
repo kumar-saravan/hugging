@@ -26,11 +26,14 @@ import { Project } from "@/types";
 import { isTheSameHtml } from "@/lib/compare-html-diff";
 import { History } from "@/components/editor/history";
 import { api } from "@/lib/api";
+import { useUser } from "@/hooks/useUser";
 
 export const AppEditor = ({ project: initialProject }: { project?: Project | null }) => {
+  const { user } = useUser();
   const [project, setProject] = useState(initialProject);
   const [credits, setCredits] = useState<number>(0);
-  const [htmlStorage, , removeHtmlStorage] = useLocalStorage("html_content");
+  const [htmlStorage, setHtmlStorage, removeHtmlStorage] =
+    useLocalStorage("html_content");
   const [, copyToClipboard] = useCopyToClipboard();
   const { html, setHtml, htmlHistory, setHtmlHistory, prompts, setPrompts } =
     useEditor(
@@ -80,13 +83,16 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
   };
 
   useEffect(() => {
-    if (!project) {
+    if (!project && user) {
       createNewProject();
     }
-  }, [project]);
+  }, [project, user]);
 
   const saveProject = async (newHtml: string) => {
-    if (!project) return;
+    if (!project) {
+      setHtmlStorage(newHtml);
+      return;
+    }
     try {
       await api.put(`/me/projects/${project.space_id}/save`, {
         html: newHtml,
@@ -101,7 +107,7 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
 
   useDebounce(
     () => {
-      if (project && !isTheSameHtml(html)) {
+      if (!isTheSameHtml(html)) {
         saveProject(html);
       }
     },
@@ -183,7 +189,7 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
       });
       router.replace(`/projects/${project?.space_id}`);
     }
-    if (htmlStorage) {
+    if (htmlStorage && !user) {
       removeHtmlStorage();
       toast.warning("Previous HTML content restored from local storage.");
     }
