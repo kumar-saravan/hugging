@@ -380,6 +380,7 @@ import Editor from "@monaco-editor/react";
 import { CopyIcon } from "lucide-react";
 import {
   useCopyToClipboard,
+  useDebounce,
   useEvent,
   useLocalStorage,
   useMount,
@@ -398,25 +399,27 @@ import { AskAI } from "@/components/editor/ask-ai";
 import { Project } from "@/types";
 import { isTheSameHtml } from "@/lib/compare-html-diff";
 import { History } from "@/components/editor/history";
+import { api } from "@/lib/api";
 
 export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [credits, setCredits] = useState<number>(0);
   const [htmlStorage, , removeHtmlStorage] = useLocalStorage("html_content");
   const [, copyToClipboard] = useCopyToClipboard();
-  const { html, setHtml, htmlHistory, setHtmlHistory, setPrompts } = useEditor(
-    project?.html ?? (htmlStorage as string) ?? defaultHTML,
-    project?.history
-  );
+  const { html, setHtml, htmlHistory, setHtmlHistory, prompts, setPrompts } =
+    useEditor(
+      project?.html ?? (htmlStorage as string) ?? defaultHTML,
+      project?.history
+    );
   // get query params from URL
   const searchParams = useSearchParams();
   const router = useRouter();
   const deploy = searchParams.get("deploy") === "true";
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const preview = useRef<HTMLDivElement>(null);
-  const editor = useRef<HTMLDivElement>(null);
+  const preview = useRef<HTMLDivElement | null>(null);
+  const editor = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const resizer = useRef<HTMLDivElement>(null);
+  const resizer = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const monacoRef = useRef<any>(null);
 
@@ -430,6 +433,30 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [isEditableModeEnabled, setIsEditableModeEnabled] = useState(false);
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>(
     null
+  );
+
+  const saveProject = async (newHtml: string) => {
+    if (!project) return;
+    try {
+      await api.put(`/me/projects/${project.space_id}/save`, {
+        html: newHtml,
+        history: htmlHistory,
+      });
+      toast.success("Project saved!");
+    } catch (error) {
+      toast.error("Error saving project.");
+      console.error(error);
+    }
+  };
+
+  useDebounce(
+    () => {
+      if (!isTheSameHtml(html)) {
+        saveProject(html);
+      }
+    },
+    2000,
+    [html]
   );
 
   /**
