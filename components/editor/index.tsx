@@ -29,20 +29,21 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
   const [credits, setCredits] = useState<number>(0);
   const [htmlStorage, , removeHtmlStorage] = useLocalStorage("html_content");
   const [, copyToClipboard] = useCopyToClipboard();
-  const { html, setHtml, htmlHistory, setHtmlHistory, setPrompts } = useEditor(
-    project?.html ?? (htmlStorage as string) ?? defaultHTML,
-    project?.history
-  );
+  const { html, setHtml, htmlHistory, setHtmlHistory, prompts, setPrompts } =
+    useEditor(
+      project?.html ?? (htmlStorage as string) ?? defaultHTML,
+      project?.history
+    );
   // get query params from URL
   const searchParams = useSearchParams();
   const router = useRouter();
   const deploy = searchParams.get("deploy") === "true";
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const preview = useRef<HTMLDivElement>(null);
-  const editor = useRef<HTMLDivElement>(null);
+  const preview = useRef<HTMLDivElement | null>(null);
+  const editor = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const resizer = useRef<HTMLDivElement>(null);
+  const resizer = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const monacoRef = useRef<any>(null);
 
@@ -219,6 +220,7 @@ export const AppEditor = ({ project }: { project?: Project | null }) => {
         tab={rightPanelTab}
         onNewTab={(tab) => setRightPanelTab(tab as "code" | "preview")}
         html={html}
+        prompts={prompts}
         availCredits={credits}
       />
       <main className="bg-neutral-950 flex-1 flex w-full max-lg:h-[calc(100%-82px)] relative">

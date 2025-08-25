@@ -119,6 +119,12 @@ export async function PUT(
   const { namespace, repoId } = param;
   const { html, prompts } = await req.json();
 
+  console.log("--- SAVING PROJECT ---");
+  console.log("namespace:", namespace);
+  console.log("repoId:", repoId);
+  console.log("html length:", html.length);
+  console.log("prompts:", prompts);
+
   const project = await Project.findOne({
     user_id: user.id,
     space_id: `${namespace}/${repoId}`,
@@ -152,6 +158,8 @@ export async function PUT(
     prompt: prompts[prompts.length - 1],
     createdAt: new Date(),
   };
+
+  console.log("newHistoryItem:", newHistoryItem);
 
   await Project.updateOne(
     { user_id: user.id, space_id: `${namespace}/${repoId}` },
