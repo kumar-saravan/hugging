@@ -266,7 +266,7 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
         const errorData = await res.json();
         console.log(errorData.message || "Failed to fetch credits");
       }
-    } catch (error) {
+    } catch (error) => {
       console.log("An error occurred. Please try again.", error);
     }
   };
@@ -287,83 +287,85 @@ export const AppEditor = ({ project: initialProject }: { project?: Project | nul
         html={html}
         availCredits={credits}
       />
-      <main className="bg-neutral-950 flex-1 flex w-full max-lg:h-[calc(100%-82px)] relative">
-        <div className="w-1/4 bg-neutral-900 p-4 overflow-y-auto">
-          <History
-            history={htmlHistory}
-            setHtml={(newHtml) => {
-              setHtml(newHtml);
-              setRightPanelTab("preview");
-            }}
-          />
-        </div>
-        <div className="flex-1 flex max-lg:flex-col">
-          {rightPanelTab === "code" ? (
-            <div
-              ref={editor}
-              className="bg-neutral-900 relative flex-1 overflow-hidden h-full flex flex-col gap-2 pb-3"
-            >
-              <CopyIcon
-                className="size-4 absolute top-2 right-5 text-neutral-500 hover:text-neutral-300 z-2 cursor-pointer"
-                onClick={() => {
-                  copyToClipboard(html);
-                  toast.success("HTML copied to clipboard!");
-                }}
-              />
-              <Editor
-                defaultLanguage="html"
-                theme="vs-dark"
-                className={classNames(
-                  "h-full bg-neutral-900 transition-all duration-200 absolute left-0 top-0 px-2 py-4",
-                  {
-                    "pointer-events-none": isAiWorking,
-                  }
-                )}
-                options={{
-                  colorDecorators: true,
-                  fontLigatures: true,
-                  theme: "vs-dark",
-                  minimap: { enabled: false },
-                  scrollbar: {
-                    horizontal: "hidden",
-                  },
-                  wordWrap: "on",
-                }}
-                value={html}
-                onChange={(value) => {
-                  const newValue = value ?? "";
-                  setHtml(newValue);
-                }}
-                onMount={(editor, monaco) => {
-                  editorRef.current = editor;
-                  monacoRef.current = monaco;
-                }}
-                onValidate={handleEditorValidation}
-              />
-            </div>
-          ) : (
-            <Preview
-              html={html}
-              isResizing={isResizing}
-              isAiWorking={isAiWorking}
-              ref={preview}
-              device={device}
-              currentTab={currentTab}
-              isEditableModeEnabled={isEditableModeEnabled}
-              iframeRef={iframeRef}
-              onClickElement={(element) => {
-                setIsEditableModeEnabled(false);
-                setSelectedElement(element);
-                setRightPanelTab("code");
+      <main className="bg-neutral-950 flex-1 flex flex-col w-full max-lg:h-[calc(100%-82px)] relative">
+        <div className="flex-1 flex w-full">
+          <div className="w-1/4 bg-neutral-900 p-4 overflow-y-auto">
+            <History
+              history={htmlHistory}
+              setHtml={(newHtml) => {
+                setHtml(newHtml);
+                setRightPanelTab("preview");
               }}
             />
-          )}
-          <div
-            ref={resizer}
-            className="bg-neutral-800 hover:bg-sky-500 active:bg-sky-500 w-1.5 cursor-col-resize h-full max-lg:hidden"
-          />
+          </div>
+          <div className="flex-1 flex max-lg:flex-col">
+            {rightPanelTab === "code" ? (
+              <div
+                ref={editor}
+                className="bg-neutral-900 relative flex-1 overflow-hidden h-full flex flex-col gap-2 pb-3"
+              >
+                <CopyIcon
+                  className="size-4 absolute top-2 right-5 text-neutral-500 hover:text-neutral-300 z-2 cursor-pointer"
+                  onClick={() => {
+                    copyToClipboard(html);
+                    toast.success("HTML copied to clipboard!");
+                  }}
+                />
+                <Editor
+                  defaultLanguage="html"
+                  theme="vs-dark"
+                  className={classNames(
+                    "h-full bg-neutral-900 transition-all duration-200 absolute left-0 top-0 px-2 py-4",
+                    {
+                      "pointer-events-none": isAiWorking,
+                    }
+                  )}
+                  options={{
+                    colorDecorators: true,
+                    fontLigatures: true,
+                    theme: "vs-dark",
+                    minimap: { enabled: false },
+                    scrollbar: {
+                      horizontal: "hidden",
+                    },
+                    wordWrap: "on",
+                  }}
+                  value={html}
+                  onChange={(value) => {
+                    const newValue = value ?? "";
+                    setHtml(newValue);
+                  }}
+                  onMount={(editor, monaco) => {
+                    editorRef.current = editor;
+                    monacoRef.current = monaco;
+                  }}
+                  onValidate={handleEditorValidation}
+                />
+              </div>
+            ) : (
+              <Preview
+                html={html}
+                isResizing={isResizing}
+                isAiWorking={isAiWorking}
+                ref={preview}
+                device={device}
+                currentTab={currentTab}
+                isEditableModeEnabled={isEditableModeEnabled}
+                iframeRef={iframeRef}
+                onClickElement={(element) => {
+                  setIsEditableModeEnabled(false);
+                  setSelectedElement(element);
+                  setRightPanelTab("code");
+                }}
+              />
+            )}
+            <div
+              ref={resizer}
+              className="bg-neutral-800 hover:bg-sky-500 active:bg-sky-500 w-1.5 cursor-col-resize h-full max-lg:hidden"
+            />
+          </div>
         </div>
-        <div className="w-1/4 bg-neutral-900 p-4 flex flex-col">
+        <div className="w-full bg-neutral-900 p-4">
           <AskAI
             html={html}
             setHtml={(newHtml: string) => {

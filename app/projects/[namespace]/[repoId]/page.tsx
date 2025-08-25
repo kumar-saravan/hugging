@@ -1,40 +1,39 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import dynamic from "next/dynamic";
+import { Project } from "@/types";
+import { api } from "@/lib/api";
 
-import { apiServer } from "@/lib/api";
-import MY_TOKEN_KEY from "@/lib/get-cookie-name";
-import { AppEditor } from "@/components/editor";
+const AppEditor = dynamic(
+  () => import("@/components/editor").then((mod) => mod.AppEditor),
+  {
+    ssr: false,
+  }
+);
 
-async function getProject(namespace: string, repoId: string) {
-  // TODO replace with a server action
-  const cookieStore = await cookies();
-  const token = cookieStore.get(MY_TOKEN_KEY())?.value;
-  if (!token) return {};
-  try {
-    const { data } = await apiServer.get(
-      `/me/projects/${namespace}/${repoId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+export default function ProjectNamespacePage() {
+  const { namespace, repoId } = useParams<{
+    namespace: string;
+    repoId: string;
+  }>();
+  const [project, setProject] = useState<Project | null>(null);
+
+  useEffect(() => {
+    const getProject = async () => {
+      try {
+        const { data } = await api.get(`/me/projects/${namespace}/${repoId}`);
+        setProject(data.project);
+      } catch (error) {
+        console.error(error);
       }
-    );
+    };
+    getProject();
+  }, [namespace, repoId]);
 
-    return data.project;
-  } catch {
-    return {};
+  if (!project) {
+    return <div>Loading...</div>;
   }
-}
 
-export default async function ProjectNamespacePage({
-  params,
-}: {
-  params: Promise<{ namespace: string; repoId: string }>;
-}) {
-  const { namespace, repoId } = await params;
-  const project = await getProject(namespace, repoId);
-  if (!project?.html) {
-    redirect("/projects");
-  }
   return <AppEditor project={project} />;
 }
